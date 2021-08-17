@@ -38,6 +38,10 @@ type Config struct {
 	// If true, Packer will not create the AMI. Useful for setting to `true`
 	// during a build test stage. Default `false`.
 	AMISkipCreateImage bool `mapstructure:"skip_create_ami" required:"false"`
+	// If true, Packer will emit a stub artifact if no AMI was created. Useful
+	// for using the builder to generate files to be used by post processors.
+	// Default `false`.
+	EmitStubArtifact bool `mapstructure:"emit_stub_artifact" required:"false"`
 	// Add one or more block device mappings to the AMI. These will be attached
 	// when booting a new instance from your AMI. To add a block device during
 	// the Packer build see `launch_block_device_mappings` below. Your options
@@ -387,8 +391,14 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		return nil, rawErr.(error)
 	}
 
-	// If there are no AMIs, then just return
+	// If there are no AMIs, check if we should emit a stub artifact
 	if _, ok := state.GetOk("amis"); !ok {
+		if b.config.EmitStubArtifact {
+			artifact := &StubArtifact{
+				BuilderIdValue: BuilderId,
+			}
+			return artifact, nil
+		}
 		return nil, nil
 	}
 

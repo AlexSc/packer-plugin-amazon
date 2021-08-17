@@ -3,6 +3,10 @@
 - `skip_create_ami` (bool) - If true, Packer will not create the AMI. Useful for setting to `true`
   during a build test stage. Default `false`.
 
+- `emit_stub_artifact` (bool) - If true, Packer will emit a stub artifact if no AMI was created. Useful
+  for using the builder to generate files to be used by post processors.
+  Default `false`.
+
 - `ami_block_device_mappings` (awscommon.BlockDevices) - Add one or more block device mappings to the AMI. These will be attached
   when booting a new instance from your AMI. To add a block device during
   the Packer build see `launch_block_device_mappings` below. Your options
