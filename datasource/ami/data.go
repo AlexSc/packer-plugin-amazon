@@ -63,6 +63,8 @@ type DatasourceOutput struct {
 	Owner string `mapstructure:"owner"`
 	// The owner alias.
 	OwnerName string `mapstructure:"owner_name"`
+	// The snapshot id of the root device.
+	RootDeviceSnapshotId string `mapstructure:"root_device_snapshot_id"`
 	// The key/value combination of the tags assigned to the AMI.
 	Tags map[string]string `mapstructure:"tags"`
 }
@@ -93,6 +95,8 @@ func (d *Datasource) Execute() (cty.Value, error) {
 		CreationDate: aws.StringValue(image.CreationDate),
 		Owner:        aws.StringValue(image.OwnerId),
 		OwnerName:    aws.StringValue(image.ImageOwnerAlias),
+		// Temporary hack for testing -- just get the snapshot id of the first device.
+		RootDeviceSnapshotId: aws.StringValue(image.BlockDeviceMappings[0].Ebs.SnapshotId),
 		Tags:         imageTags,
 	}
 	return hcl2helper.HCL2ValueFromConfig(output, d.OutputSpec()), nil
